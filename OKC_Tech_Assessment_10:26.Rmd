@@ -1,0 +1,82 @@
+---
+title: "OKC Tech Assessment - 10/26"
+author: "Anthony Rio"
+date: '2022-10-26'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#OKC Technical Assessment
+
+```{r}
+library(tidyverse)
+#loading in data
+shots_data <- read.csv("shots_data.csv")
+head(shots_data)
+
+#create zone column
+shots_data$zone <- "zone"
+
+#classify the shot type
+shots_data[with(shots_data, ((x >= 22) & (y <= 7.8))), ]$zone <- "C3"
+shots_data[with(shots_data, ((y > 7.8) & (sqrt((x^2 + y^2)) >= 23.75))), ]$zone <- "NC3"
+shots_data[with(shots_data, zone == "zone"), ]$zone <- "2PT"
+
+
+
+#create variable values for total number of shots attempted for each team
+nshotsA <- shots_data %>% filter(team == "Team A") %>% nrow()
+nshotsB <- shots_data %>% filter(team == "Team B") %>% nrow()
+
+#create variable values for total number of corner 3PT shots attempted for each team
+c3b <- shots_data %>% filter(team == "Team B" & zone == "C3") %>% nrow() 
+c3a <- shots_data %>% filter(team == "Team A" & zone == "C3") %>% nrow() 
+
+#create variable values for total number of non-corner 3PT shots attempted for each team
+nc3b <- shots_data %>% filter(team == "Team B" & zone == "NC3") %>% nrow()
+nc3a <- shots_data %>% filter(team == "Team A" & zone == "NC3") %>% nrow() 
+
+#create variable values for total number of 2PT shots attempted for each team
+tb <- shots_data %>% filter(team == "Team B" & zone == "2PT") %>% nrow() 
+ta <- shots_data %>% filter(team == "Team A" & zone == "2PT") %>% nrow() 
+
+#Shot distribution calculations
+
+#Corner 3 Team A Shot Distribution
+c3a / nshotsA
+#Corner 3 Team B Shot Distribution
+c3b / nshotsB
+
+#Non-Corner 3 Team A Shot Distribution
+nc3a / nshotsA
+#Non-Corner 3 Team B Shot Distribution
+nc3a / nshotsB
+
+#Twos Team A Shot Distribution
+ta / nshotsA
+#Twos Team B Shot Distribution
+tb / nshotsB
+
+
+#EFG calculations
+
+#Twos EFG% for Team B and A
+shots_data %>% filter(team == "Team B" & zone == "2PT") %>% pull(fgmade) %>% sum() / tb
+shots_data %>% filter(team == "Team A" & zone == "2PT") %>% pull(fgmade) %>% sum() / ta
+
+#Corner 3s EFG% for Team B and A
+shots_data %>% filter(team == "Team B" & zone == "C3") %>% pull(fgmade) %>% sum() *1.5 / c3b
+shots_data %>% filter(team == "Team A" & zone == "C3") %>% pull(fgmade) %>% sum() * 1.5 / c3a
+
+#Non-Corner 3s EFG% for Team B and A
+shots_data %>% filter(team == "Team B" & zone == "NC3") %>% pull(fgmade) %>% sum() * 1.5 / nc3b
+shots_data %>% filter(team == "Team A" & zone == "NC3") %>% pull(fgmade) %>% sum() * 1.5 / nc3a
+
+```
+
+
+
+
